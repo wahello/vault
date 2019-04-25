@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/mitchellh/mapstructure"
 	"path"
 	"reflect"
 	"sort"
@@ -18,11 +17,13 @@ import (
 
 	"github.com/go-test/deep"
 	"github.com/hashicorp/errwrap"
-	hclog "github.com/hashicorp/go-hclog"
-	uuid "github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/vault/helper/identity"
 	"github.com/hashicorp/vault/helper/namespace"
 	"github.com/hashicorp/vault/sdk/helper/locksutil"
 	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/mitchellh/mapstructure"
 )
 
 func TestTokenStore_CreateOrphanResponse(t *testing.T) {
