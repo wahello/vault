@@ -366,6 +366,18 @@ func (b *backend) matchesOrganizationalUnits(clientCert *x509.Certificate, confi
 		return true
 	}
 
+	// TODO this is where we'd need to insert logic validating ALL of them
+	/*
+		So basically, we'd actually register this engine TWICE in the registry.
+		Once as "cert" as it is today, plus a second time as "PCF".
+		Here, there would be a logical branch that were like,
+		if b.Type() == "pcf" {
+			... all OU's provided in the config must be present on the given certificate ...
+		} else {
+		    ... do what we do today ...
+		}
+	*/
+
 	// At least one pattern must match at least one name if any patterns are specified
 	for _, allowedOrganizationalUnits := range config.Entry.AllowedOrganizationalUnits {
 		for _, ou := range clientCert.Subject.OrganizationalUnit {
