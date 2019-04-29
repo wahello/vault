@@ -368,14 +368,22 @@ func (b *backend) matchesOrganizationalUnits(clientCert *x509.Certificate, confi
 
 	// TODO this is where we'd need to insert logic validating ALL of them
 	/*
-		So basically, we'd actually register this engine TWICE in the registry.
-		Once as "cert" as it is today, plus a second time as "PCF".
-		Here, there would be a logical branch that were like,
-		if b.Type() == "pcf" {
-			... all OU's provided in the config must be present on the given certificate ...
-		} else {
-		    ... do what we do today ...
-		}
+			So basically, we'd actually register this engine TWICE in the registry.
+			Once as "cert" as it is today, plus a second time as "PCF".
+			Here, there would be a logical branch that were like,
+			if b.Type() == "pcf" {
+				... all OU's provided in the config must be present on the given certificate ...
+			} else {
+			    ... do what we do today ...
+			}
+
+			To the user, it would appear as its own standalone auth method,
+		    and we could write docs for it separately.
+
+			Then all the cert improvements would immediately happen to the PCF
+			auth method too, and if new feature requests came in moving it closer
+			to being like the cert one, we'd just let them know that's already available
+			just undocumented (bound_cidrs for example).
 	*/
 
 	// At least one pattern must match at least one name if any patterns are specified
