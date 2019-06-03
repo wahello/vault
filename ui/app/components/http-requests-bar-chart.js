@@ -3,18 +3,24 @@ import d3 from 'd3-selection';
 import d3Scale from 'd3-scale';
 import d3Axis from 'd3-axis';
 import d3TimeFormat from 'd3-time-format';
+import { assign } from '@ember/polyfills';
 
 /**
  * @module HttpRequestsBarChart
- * HttpRequestsBarChart components are used to...
+ * HttpRequestsBarChart components are used to render a bar chart with the total number of HTTP Requests to a Vault server per month.
  *
  * @example
  * ```js
- * <HttpRequestsBarChart @param1={param1} @param2={param2} />
+ * <HttpRequestsBarChart @counters={{counters}} />
  * ```
  *
- * @param param1 {String} - param1 is...
- * @param [param2=value] {String} - param2 is... //brackets mean it is optional and = sets the default value
+ * @param counters=null {Array} - A list of objects containing the total number of HTTP Requests for each month. `counters` should be the response from the `/internal/counters/requests` endpoint which looks like:
+ * COUNTERS = [
+ *    {
+ *       "start_time": "2019-05-01T00:00:00Z",
+ *       "total": 50
+ *     }
+ * ]
  */
 
 const COUNTERS = [
@@ -34,7 +40,7 @@ const COUNTERS = [
 
 export default Component.extend({
   tagName: '',
-  data: null,
+  counters: null,
   svgContainer: null,
   margin: { top: 12, right: 12, bottom: 24, left: 24 },
   width() {
@@ -49,7 +55,7 @@ export default Component.extend({
   didInsertElement() {
     this._super(...arguments);
 
-    const data = COUNTERS;
+    const data = this.counters || [];
     this.initBarChart(data);
   },
 
@@ -86,12 +92,13 @@ export default Component.extend({
       .range([height, 0]);
 
     // parse the start times so the ticks display properly
-    dataIn.forEach(counter => {
-      counter.start_time = d3TimeFormat.isoParse(counter.start_time);
+    const parsedData = dataIn.map(counter => {
+      return assign({}, counter, { start_time: d3TimeFormat.isoParse(counter.start_time) });
     });
+
     const xScale = d3Scale
       .scaleBand()
-      .domain(dataIn.map(c => c.start_time))
+      .domain(parsedData.map(c => c.start_time))
       // how wide it should be
       .rangeRound([0, width], 0.05)
       // what % of total width it should reserve for whitespace between the bars
@@ -148,7 +155,7 @@ export default Component.extend({
       .append('clipPath')
       .attr('id', 'clip-bar-rects')
       .selectAll('.bar')
-      .data(dataIn);
+      .data(parsedData);
 
     bars
       // since the initial selection is empty (there are no bar elements yet), instantiate
