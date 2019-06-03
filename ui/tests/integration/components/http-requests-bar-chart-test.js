@@ -3,24 +3,31 @@ import { setupRenderingTest } from 'ember-qunit';
 import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
+const COUNTERS = [
+  {
+    start_time: '2019-05-01T00:00:00Z',
+    total: 50000,
+  },
+  {
+    start_time: '2019-04-01T00:00:00Z',
+    total: 4500,
+  },
+  {
+    start_time: '2019-03-01T00:00:00Z',
+    total: 550000,
+  },
+];
+
 module('Integration | Component | http-requests-bar-chart', function(hooks) {
   setupRenderingTest(hooks);
 
+  hooks.beforeEach(function() {
+    this.set('counters', COUNTERS);
+  });
+
   test('it renders', async function(assert) {
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.set('myAction', function(val) { ... });
+    await render(hbs`<HttpRequestsBarChart @counters={{counters}}/>`);
 
-    await render(hbs`{{http-requests-bar-chart}}`);
-
-    assert.equal(this.element.textContent.trim(), '');
-
-    // Template block usage:
-    await render(hbs`
-      {{#http-requests-bar-chart}}
-        template block text
-      {{/http-requests-bar-chart}}
-    `);
-
-    assert.equal(this.element.textContent.trim(), 'template block text');
+    assert.dom('.http-requests-bar-chart').exists();
   });
 });

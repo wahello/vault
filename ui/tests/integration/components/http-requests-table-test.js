@@ -6,15 +6,15 @@ import hbs from 'htmlbars-inline-precompile';
 const COUNTERS = [
   {
     start_time: '2019-05-01T00:00:00Z',
-    total: 50,
+    total: 50000,
   },
   {
     start_time: '2019-04-01T00:00:00Z',
-    total: 45,
+    total: 4500,
   },
   {
     start_time: '2019-03-01T00:00:00Z',
-    total: 55,
+    total: 550000,
   },
 ];
 
