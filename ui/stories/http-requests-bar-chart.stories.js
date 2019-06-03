@@ -1,32 +1,32 @@
 /* eslint-disable import/extensions */
 import hbs from 'htmlbars-inline-precompile';
 import { storiesOf } from '@storybook/ember';
-import notes from './http-requests-table.md';
+import notes from './http-requests-bar-chart.md';
 
 
-storiesOf('HttpRequests/Table/', module)
+storiesOf('HttpRequests/BarChart/', module)
   .addParameters({ options: { showPanel: true } })
-  .add(`HttpRequestsTable`, () => ({
+  .add(`HttpRequestsBarChart`, () => ({
     template: hbs`
-        <h5 class="title is-5">Http Requests Table</h5>
-        <HttpRequestsTable @counters={{counters}}/>
+        <h5 class="title is-5">Http Requests Bar Chart</h5>
+        <HttpRequestsBarChart @counters={{counters}}/>
     `,
     context: {
       counters: [
         {
           start_time: '2019-05-01T00:00:00Z',
-          total: 50,
+          total: 50000,
         },
         {
           start_time: '2019-04-01T00:00:00Z',
-          total: 45,
+          total: 4500,
         },
         {
           start_time: '2019-03-01T00:00:00Z',
-          total: 55,
+          total: 550000,
         },
       ]
     },
   }),
-  { notes }
+  {notes}
 );
