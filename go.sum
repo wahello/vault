@@ -273,6 +273,8 @@ github.com/hashicorp/vault-plugin-auth-gcp v0.5.1 h1:8DR00s+Wmc21i3sfzvsqW88VMdf
 github.com/hashicorp/vault-plugin-auth-gcp v0.5.1/go.mod h1:eLj92eX8MPI4vY1jaazVLF2sVbSAJ3LRHLRhF/pUmlI=
 github.com/hashicorp/vault-plugin-auth-jwt v0.5.1 h1:d9WLI7oF6VMtwBZwS5bbChc4kW+UwNZUKIGXH6wnnTc=
 github.com/hashicorp/vault-plugin-auth-jwt v0.5.1/go.mod h1:5VU7gc6/BEEFQW/viqMs3LBxI1D1cxJmKqKQEP3JUP4=
+github.com/hashicorp/vault-plugin-auth-jwt v0.5.2-0.20190516005034-363f5913f469 h1:4Bd9suSEoX02MaBUFbaQpSO9Gg1hgHFg+Lju9H4dIsg=
+github.com/hashicorp/vault-plugin-auth-jwt v0.5.2-0.20190516005034-363f5913f469/go.mod h1:S/nBdb47HL/InthEMVChUDgk+kYreEVkNCRXQ51ILC0=
 github.com/hashicorp/vault-plugin-auth-kubernetes v0.5.1 h1:q6DGb12Vw/CpZ9xDWAmpzxVRKeClFqRFgbIZ3fZcvuY=
 github.com/hashicorp/vault-plugin-auth-kubernetes v0.5.1/go.mod h1:qCDsm0njdfUrnN5sFKMLjxGjZKjQf2qB6dReQ4gr4YI=
 github.com/hashicorp/vault-plugin-secrets-ad v0.5.1 h1:BdiASUZLOvOUs317EnaUNjGxTSw0PYGQA7zJZhDKLC4=
@@ -369,6 +371,8 @@ github.com/mitchellh/mapstructure v1.1.2 h1:fmNYVwqnSfB9mZU6OS2O6GsXM+wcskZDuKQz
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mitchellh/pointerstructure v0.0.0-20190323210102-2db4bb651397 h1:GwYLdFxg/9bWW+e6YMWDNrKZ43gbKKkgC9mtmxai4o0=
 github.com/mitchellh/pointerstructure v0.0.0-20190323210102-2db4bb651397/go.mod h1:k4XwG94++jLVsSiTxo7qdIfXA9pj9EAeo0QsNNJOLZ8=
+github.com/mitchellh/pointerstructure v0.0.0-20190430161007-f252a8fd71c8 h1:1CO5wil3HuiVLrUQ2ovSTO+6AfNOA5EMkHHVyHE9IwA=
+github.com/mitchellh/pointerstructure v0.0.0-20190430161007-f252a8fd71c8/go.mod h1:k4XwG94++jLVsSiTxo7qdIfXA9pj9EAeo0QsNNJOLZ8=
 github.com/mitchellh/reflectwalk v1.0.0 h1:9D+8oIskB4VJBN5SFlmc27fSlIBZaov1Wpk/IfikLNY=
 github.com/mitchellh/reflectwalk v1.0.0/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd h1:TRLaZ9cD/w8PVh93nsPXa1VrQ6jlwL5oN8l14QlcNfg=

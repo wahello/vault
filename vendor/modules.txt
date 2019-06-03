@@ -325,7 +325,7 @@ github.com/hashicorp/vault-plugin-auth-centrify
 # github.com/hashicorp/vault-plugin-auth-gcp v0.5.1
 github.com/hashicorp/vault-plugin-auth-gcp/plugin
 github.com/hashicorp/vault-plugin-auth-gcp/plugin/cache
-# github.com/hashicorp/vault-plugin-auth-jwt v0.5.1
+# github.com/hashicorp/vault-plugin-auth-jwt v0.5.2-0.20190516005034-363f5913f469
 github.com/hashicorp/vault-plugin-auth-jwt
 # github.com/hashicorp/vault-plugin-auth-kubernetes v0.5.1
 github.com/hashicorp/vault-plugin-auth-kubernetes
@@ -461,7 +461,7 @@ github.com/mitchellh/go-homedir
 github.com/mitchellh/go-testing-interface
 # github.com/mitchellh/mapstructure v1.1.2
 github.com/mitchellh/mapstructure
-# github.com/mitchellh/pointerstructure v0.0.0-20190323210102-2db4bb651397
+# github.com/mitchellh/pointerstructure v0.0.0-20190430161007-f252a8fd71c8
 github.com/mitchellh/pointerstructure
 # github.com/mitchellh/reflectwalk v1.0.0
 github.com/mitchellh/reflectwalk
