@@ -158,8 +158,6 @@ export default Component.extend({
       .data(parsedData);
 
     bars
-      // since the initial selection is empty (there are no bar elements yet), instantiate
-      // the missing elements by appending to the enter selection
       .enter()
       .append('rect')
       .attr('class', 'bar')
@@ -167,7 +165,6 @@ export default Component.extend({
       .attr('height', counter => height - yScale(counter.total))
       // the offset between each bar
       .attr('x', counter => xScale(counter.start_time))
-      // 150 is the height of the svg
       .attr('y', counter => yScale(counter.total));
   },
 });
