@@ -123,13 +123,13 @@ export default Component.extend({
 
     bgGradient
       .append('stop')
-      // blue
+      // this corresponds to $blue-500
       .attr('stop-color', '#1563ff')
       .attr('stop-opacity', '0.8')
       .attr('offset', '0%');
     bgGradient
       .append('stop')
-      //  grey
+      // this corresponds to $blue-500
       .attr('stop-color', '#1563ff')
       .attr('stop-opacity', '0.3')
       .attr('offset', '100%');
