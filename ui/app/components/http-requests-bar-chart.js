@@ -4,6 +4,7 @@ import d3Scale from 'd3-scale';
 import d3Axis from 'd3-axis';
 import d3TimeFormat from 'd3-time-format';
 import { assign } from '@ember/polyfills';
+import { computed } from '@ember/object';
 import { run } from '@ember/runloop';
 
 /**
@@ -45,13 +46,43 @@ export default Component.extend({
   svgContainer: null,
   margin: { top: 12, right: 12, bottom: 24, left: 24 },
   width() {
-    const margin = this.margin;
+    const { margin } = this;
     return 1344 - margin.left - margin.right;
   },
   height() {
-    const margin = this.margin;
+    const { margin } = this;
     return 240 - margin.top - margin.bottom;
   },
+
+  parsedCounters: computed('counters', function() {
+    // parse the start times so bars and ticks display properly
+    const { counters } = this;
+    return counters.map(counter => {
+      return assign({}, counter, { start_time: d3TimeFormat.isoParse(counter.start_time) });
+    });
+  }),
+
+  yScale: computed('parsedCounters', function() {
+    const { parsedCounters } = this;
+    const height = this.height();
+    const counterTotals = parsedCounters.map(c => c.total);
+
+    return d3Scale
+      .scaleLinear()
+      .domain([0, Math.max(...counterTotals)])
+      .range([height, 0]);
+  }),
+
+  xScale: computed('parsedCounters', function() {
+    const { parsedCounters } = this;
+    const width = this.width();
+
+    return d3Scale
+      .scaleBand()
+      .domain(parsedCounters.map(c => c.start_time))
+      .rangeRound([0, width], 0.05)
+      .paddingInner(0.04);
+  }),
 
   didInsertElement() {
     this._super(...arguments);
@@ -61,9 +92,9 @@ export default Component.extend({
   },
 
   initBarChart(dataIn) {
-    const margin = this.margin,
-      width = this.width(),
-      height = this.height();
+    const { margin } = this;
+    const width = this.width();
+    const height = this.height();
 
     const svgContainer = d3
       .select('.http-requests-bar-chart')
@@ -80,42 +111,20 @@ export default Component.extend({
   },
 
   renderBarChart(dataIn) {
-    const width = this.width(),
-      height = this.height(),
-      svgContainer = this.svgContainer;
-
-    const counterTotals = dataIn.map(c => c.total);
-
-    const yScale = d3Scale
-      .scaleLinear()
-      // the minimum and maximum value of the data
-      .domain([0, Math.max(...counterTotals)])
-      // how tall chart should be when we render it
-      .range([height, 0]);
-
-    // parse the start times so the ticks display properly
-    const parsedData = dataIn.map(counter => {
-      return assign({}, counter, { start_time: d3TimeFormat.isoParse(counter.start_time) });
-    });
-
-    const xScale = d3Scale
-      .scaleBand()
-      .domain(parsedData.map(c => c.start_time))
-      // how wide it should be
-      .rangeRound([0, width], 0.05)
-      // what % of total width it should reserve for whitespace between the bars
-      .paddingInner(0.04);
+    const width = this.width();
+    const height = this.height();
+    const { svgContainer, xScale, yScale, parsedCounters } = this;
 
     const yAxis = d3Axis.axisRight(yScale).ticks(3, '.0s');
     const xAxis = d3Axis.axisBottom(xScale).tickFormat(d3TimeFormat.timeFormat('%b %Y'));
 
-    const xAxis_g = svgContainer
+    svgContainer
       .append('g')
       .attr('class', 'x axis')
       .attr('transform', `translate(0,${height})`)
       .call(xAxis);
 
-    const yAxis_g = svgContainer
+    svgContainer
       .append('g')
       .attr('class', 'y axis')
       .attr('transform', `translate(${width}, 0)`)
@@ -155,7 +164,7 @@ export default Component.extend({
       .append('clipPath')
       .attr('id', 'clip-bar-rects')
       .selectAll('.bar')
-      .data(parsedData);
+      .data(parsedCounters);
 
     bars
       .enter()
