@@ -4,6 +4,7 @@ import d3Scale from 'd3-scale';
 import d3Axis from 'd3-axis';
 import d3TimeFormat from 'd3-time-format';
 import { assign } from '@ember/polyfills';
+import { run } from '@ember/runloop';
 
 /**
  * @module HttpRequestsBarChart
@@ -56,7 +57,7 @@ export default Component.extend({
     this._super(...arguments);
 
     const data = this.counters || [];
-    this.initBarChart(data);
+    run.schedule('afterRender', this, () => this.initBarChart(data));
   },
 
   initBarChart(dataIn) {
