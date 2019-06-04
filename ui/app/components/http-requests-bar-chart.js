@@ -6,6 +6,7 @@ import d3TimeFormat from 'd3-time-format';
 import { assign } from '@ember/polyfills';
 import { computed } from '@ember/object';
 import { run } from '@ember/runloop';
+import { task, waitForEvent } from 'ember-concurrency';
 
 /**
  * @module HttpRequestsBarChart
@@ -41,14 +42,13 @@ const COUNTERS = [
 ];
 
 export default Component.extend({
-  tagName: '',
-  counters: null,
+  classNames: ['http-requests-bar-chart-container'],
+  counters: COUNTERS,
   svgContainer: null,
+  barsContainer: null,
+  clipPath: null,
   margin: { top: 12, right: 12, bottom: 24, left: 24 },
-  width() {
-    const { margin } = this;
-    return 1344 - margin.left - margin.right;
-  },
+  width: 0,
   height() {
     const { margin } = this;
     return 240 - margin.top - margin.bottom;
@@ -62,7 +62,7 @@ export default Component.extend({
     });
   }),
 
-  yScale: computed('parsedCounters', function() {
+  yScale: computed('parsedCounters', 'height', function() {
     const { parsedCounters } = this;
     const height = this.height();
     const counterTotals = parsedCounters.map(c => c.total);
@@ -73,9 +73,8 @@ export default Component.extend({
       .range([height, 0]);
   }),
 
-  xScale: computed('parsedCounters', function() {
-    const { parsedCounters } = this;
-    const width = this.width();
+  xScale: computed('parsedCounters', 'width', function() {
+    const { parsedCounters, width } = this;
 
     return d3Scale
       .scaleBand()
@@ -86,49 +85,24 @@ export default Component.extend({
 
   didInsertElement() {
     this._super(...arguments);
+    const { margin } = this;
 
-    const data = this.counters || [];
-    run.schedule('afterRender', this, () => this.initBarChart(data));
+    run.schedule('afterRender', this, () => {
+      this.set('width', this.element.clientWidth - margin.left - margin.right);
+      this.initBarChart();
+    });
   },
 
-  initBarChart(dataIn) {
-    const { margin } = this;
-    const width = this.width();
+  initBarChart() {
+    const { margin, width } = this;
     const height = this.height();
 
     const svgContainer = d3
       .select('.http-requests-bar-chart')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .attr('viewBox', `0 0 ${width} ${height}`)
-      .attr('preserveAspectRatio', 'xMidYMid')
       .append('g')
       .attr('class', 'container');
 
     this.set('svgContainer', svgContainer);
-
-    this.renderBarChart(dataIn);
-  },
-
-  renderBarChart(dataIn) {
-    const width = this.width();
-    const height = this.height();
-    const { svgContainer, xScale, yScale, parsedCounters } = this;
-
-    const yAxis = d3Axis.axisRight(yScale).ticks(3, '.0s');
-    const xAxis = d3Axis.axisBottom(xScale).tickFormat(d3TimeFormat.timeFormat('%b %Y'));
-
-    svgContainer
-      .append('g')
-      .attr('class', 'x axis')
-      .attr('transform', `translate(0,${height})`)
-      .call(xAxis);
-
-    svgContainer
-      .append('g')
-      .attr('class', 'y axis')
-      .attr('transform', `translate(${width}, 0)`)
-      .call(yAxis);
 
     const defs = svgContainer.append('defs');
 
@@ -150,30 +124,83 @@ export default Component.extend({
       .attr('stop-opacity', '0.3')
       .attr('offset', '100%');
 
-    const clipPath = svgContainer.append('g').attr('clip-path', `url(#clip-bar-rects)`);
-
-    clipPath
+    const clipPath = svgContainer
+      .append('g')
+      .attr('clip-path', `url(#clip-bar-rects)`)
       .append('rect')
       .attr('x', 0)
       .attr('y', 0)
-      .attr('width', width)
-      .attr('height', height)
       .style('fill', 'url(#bg-gradient)');
 
-    const bars = defs
-      .append('clipPath')
-      .attr('id', 'clip-bar-rects')
-      .selectAll('.bar')
-      .data(parsedCounters);
+    this.set('clipPath', clipPath);
 
-    bars
+    const barsContainer = d3
+      .select('.http-requests-bar-chart')
+      .append('clipPath')
+      .attr('id', 'clip-bar-rects');
+
+    this.set('barsContainer', barsContainer);
+
+    svgContainer.append('g').attr('class', 'x axis');
+    svgContainer.append('g').attr('class', 'y axis');
+
+    this.renderBarChart();
+  },
+
+  renderBarChart() {
+    const data = this.counters || [];
+    const height = this.height();
+    const { margin, width, svgContainer, xScale, yScale, parsedCounters, barsContainer, clipPath } = this;
+
+    d3.select('.http-requests-bar-chart')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .attr('viewBox', `0 0 ${width} ${height}`);
+
+    const yAxis = d3Axis.axisRight(yScale).ticks(3, '.0s');
+    const xAxis = d3Axis.axisBottom(xScale).tickFormat(d3TimeFormat.timeFormat('%b %Y'));
+
+    svgContainer
+      .select('g.x.axis')
+      .attr('transform', `translate(0,${height})`)
+      .call(xAxis);
+
+    svgContainer
+      .select('g.y.axis')
+      .attr('transform', `translate(${width}, 0)`)
+      .call(yAxis);
+
+    clipPath.attr('width', width).attr('height', height);
+
+    const bars = barsContainer.selectAll('.bar').data(parsedCounters);
+    const barsEnter = bars
       .enter()
       .append('rect')
-      .attr('class', 'bar')
+      .attr('class', 'bar');
+
+    bars
+      .merge(barsEnter)
       .attr('width', xScale.bandwidth())
       .attr('height', counter => height - yScale(counter.total))
       // the offset between each bar
       .attr('x', counter => xScale(counter.start_time))
       .attr('y', counter => yScale(counter.total));
   },
+
+  updateDimensions(event) {
+    const newWidth = event.target.innerWidth;
+    const { margin } = this;
+
+    this.set('width', newWidth - margin.left - margin.right);
+    this.renderBarChart();
+  },
+
+  waitforResize: task(function*() {
+    while (true) {
+      let event = yield waitForEvent(window, 'resize');
+      this.updateDimensions(event);
+    }
+  })
+    .on('didInsertElement')
+    .cancelOn('willDestroyElement'),
 });
