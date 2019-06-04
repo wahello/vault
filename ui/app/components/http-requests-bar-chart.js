@@ -69,16 +69,17 @@ export default Component.extend({
       .select('.http-requests-bar-chart')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
+      .attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('preserveAspectRatio', 'xMidYMid')
       .append('g')
-      .attr('class', 'container')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+      .attr('class', 'container');
 
     this.set('svgContainer', svgContainer);
 
-    this.barChart(dataIn);
+    this.renderBarChart(dataIn);
   },
 
-  barChart(dataIn) {
+  renderBarChart(dataIn) {
     const width = this.width(),
       height = this.height(),
       svgContainer = this.svgContainer;
@@ -112,15 +113,13 @@ export default Component.extend({
       .append('g')
       .attr('class', 'x axis')
       .attr('transform', `translate(0,${height})`)
-      .call(xAxis)
-      .select('text');
+      .call(xAxis);
 
     const yAxis_g = svgContainer
       .append('g')
       .attr('class', 'y axis')
       .attr('transform', `translate(${width}, 0)`)
-      .call(yAxis)
-      .select('text');
+      .call(yAxis);
 
     const defs = svgContainer.append('defs');
 
