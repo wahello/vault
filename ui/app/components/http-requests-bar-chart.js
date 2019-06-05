@@ -47,7 +47,7 @@ export default Component.extend({
   svgContainer: null,
   barsContainer: null,
   clipPathRect: null,
-  margin: { top: 16, right: 16, bottom: 24, left: 24 },
+  margin: { top: 24, right: 16, bottom: 24, left: 16 },
   width: 0,
   height() {
     const { margin } = this;
@@ -74,12 +74,12 @@ export default Component.extend({
   }),
 
   xScale: computed('parsedCounters', 'width', function() {
-    const { parsedCounters, width } = this;
+    const { parsedCounters, width, margin } = this;
 
     return d3Scale
       .scaleBand()
       .domain(parsedCounters.map(c => c.start_time))
-      .rangeRound([0, width], 0.05)
+      .rangeRound([0, width - margin.left - margin.right], 0.05)
       .paddingInner(0.04);
   }),
 
@@ -165,7 +165,7 @@ export default Component.extend({
 
     svgContainer
       .select('g.y.axis')
-      .attr('transform', `translate(${width}, 0)`)
+      .attr('transform', `translate(${width - margin.left - margin.right}, 0)`)
       .call(yAxis);
 
     // update the clipPath and render the bars
