@@ -46,8 +46,8 @@ export default Component.extend({
   counters: COUNTERS,
   svgContainer: null,
   barsContainer: null,
-  clipPath: null,
-  margin: { top: 12, right: 12, bottom: 24, left: 24 },
+  clipPathRect: null,
+  margin: { top: 16, right: 16, bottom: 24, left: 24 },
   width: 0,
   height() {
     const { margin } = this;
@@ -87,6 +87,8 @@ export default Component.extend({
     this._super(...arguments);
     const { margin } = this;
 
+    // set the width after the element has been rendered because the chart axes depend on it.
+    // this helps us avoid an arbitrary hardcoded width which causes alignment & resizing problems.
     run.schedule('afterRender', this, () => {
       this.set('width', this.element.clientWidth - margin.left - margin.right);
       this.initBarChart();
@@ -94,14 +96,8 @@ export default Component.extend({
   },
 
   initBarChart() {
-    const { margin, width } = this;
-    const height = this.height();
-
-    const svgContainer = d3
-      .select('.http-requests-bar-chart')
-      .append('g')
-      .attr('class', 'container');
-
+    // mount the d3 elements on initial page load, but do not render the bars yet.
+    const svgContainer = d3.select('.http-requests-bar-chart');
     this.set('svgContainer', svgContainer);
 
     const defs = svgContainer.append('defs');
@@ -117,6 +113,7 @@ export default Component.extend({
       .attr('stop-color', '#1563ff')
       .attr('stop-opacity', '0.8')
       .attr('offset', '0%');
+
     bgGradient
       .append('stop')
       // this corresponds to $blue-500
@@ -124,7 +121,7 @@ export default Component.extend({
       .attr('stop-opacity', '0.3')
       .attr('offset', '100%');
 
-    const clipPath = svgContainer
+    const clipPathRect = svgContainer
       .append('g')
       .attr('clip-path', `url(#clip-bar-rects)`)
       .append('rect')
@@ -132,7 +129,7 @@ export default Component.extend({
       .attr('y', 0)
       .style('fill', 'url(#bg-gradient)');
 
-    this.set('clipPath', clipPath);
+    this.set('clipPathRect', clipPathRect);
 
     const barsContainer = d3
       .select('.http-requests-bar-chart')
@@ -148,15 +145,16 @@ export default Component.extend({
   },
 
   renderBarChart() {
-    const data = this.counters || [];
     const height = this.height();
-    const { margin, width, svgContainer, xScale, yScale, parsedCounters, barsContainer, clipPath } = this;
+    const { margin, width, svgContainer, xScale, yScale, parsedCounters, barsContainer, clipPathRect } = this;
 
+    // render the chart
     d3.select('.http-requests-bar-chart')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .attr('viewBox', `0 0 ${width} ${height}`);
 
+    // scale and render the axes
     const yAxis = d3Axis.axisRight(yScale).ticks(3, '.0s');
     const xAxis = d3Axis.axisBottom(xScale).tickFormat(d3TimeFormat.timeFormat('%b %Y'));
 
@@ -170,7 +168,8 @@ export default Component.extend({
       .attr('transform', `translate(${width}, 0)`)
       .call(yAxis);
 
-    clipPath.attr('width', width).attr('height', height);
+    // update the clipPath and render the bars
+    clipPathRect.attr('width', width).attr('height', height);
 
     const bars = barsContainer.selectAll('.bar').data(parsedCounters);
     const barsEnter = bars
@@ -180,6 +179,7 @@ export default Component.extend({
 
     bars
       .merge(barsEnter)
+      // these attributes are only applied when bars are updated
       .attr('width', xScale.bandwidth())
       .attr('height', counter => height - yScale(counter.total))
       // the offset between each bar
@@ -187,8 +187,8 @@ export default Component.extend({
       .attr('y', counter => yScale(counter.total));
   },
 
-  updateDimensions(event) {
-    const newWidth = event.target.innerWidth;
+  updateDimensions() {
+    const newWidth = this.element.clientWidth;
     const { margin } = this;
 
     this.set('width', newWidth - margin.left - margin.right);
@@ -197,8 +197,8 @@ export default Component.extend({
 
   waitforResize: task(function*() {
     while (true) {
-      let event = yield waitForEvent(window, 'resize');
-      this.updateDimensions(event);
+      yield waitForEvent(window, 'resize');
+      this.updateDimensions();
     }
   })
     .on('didInsertElement')
