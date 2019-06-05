@@ -2,6 +2,7 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
+import sinon from 'sinon';
 
 const COUNTERS = [
   {
@@ -30,4 +31,34 @@ module('Integration | Component | http-requests-bar-chart', function(hooks) {
 
     assert.dom('.http-requests-bar-chart').exists();
   });
+
+  test('it renders the correct number of bars and ticks', async function(assert) {
+    await render(hbs`<HttpRequestsBarChart @counters={{counters}}/>`);
+
+    assert.equal(this.element.querySelectorAll('.bar').length, 3);
+    assert.equal(this.element.querySelectorAll('.tick').length, 6);
+  });
+
+  test('it formats the ticks', async function(assert) {
+    await render(hbs`<HttpRequestsBarChart @counters={{counters}}/>`);
+
+    assert.equal(
+      this.element.querySelector('.x.axis>.tick').textContent,
+      'Apr 2019',
+      'x axis ticks should should show the month and year'
+    );
+    assert.equal(
+      this.element.querySelectorAll('.y.axis>.tick')[1].textContent,
+      '200k',
+      'y axis ticks should round to the nearest thousand'
+    );
+  });
+
+  // test('it updates chart dimensions on page resize', async function(assert) {
+  //   let spy = sinon.spy();
+  //   this.set('renderBarChat', spy);
+  //   this.set('width', this.element.clientWidth);
+  //   await render(hbs`<HttpRequestsBarChart @counters={{counters}}/>`);
+  //   debugger;
+  // });
 });
