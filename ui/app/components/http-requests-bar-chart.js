@@ -26,32 +26,16 @@ import { task, waitForEvent } from 'ember-concurrency';
  * ]
  */
 
-const COUNTERS = [
-  {
-    start_time: '2019-05-01T00:00:00Z',
-    total: 50000,
-  },
-  {
-    start_time: '2019-04-01T00:00:00Z',
-    total: 4500,
-  },
-  {
-    start_time: '2019-03-01T00:00:00Z',
-    total: 550000,
-  },
-];
+const HEIGHT = 240;
 
 export default Component.extend({
   classNames: ['http-requests-bar-chart-container'],
-  counters: COUNTERS,
-  svgContainer: null,
-  barsContainer: null,
-  clipPathRect: null,
+  counters: null,
   margin: { top: 24, right: 16, bottom: 24, left: 16 },
   width: 0,
   height() {
     const { margin } = this;
-    return 240 - margin.top - margin.bottom;
+    return HEIGHT - margin.top - margin.bottom;
   },
 
   parsedCounters: computed('counters', function() {
@@ -91,62 +75,15 @@ export default Component.extend({
     // this helps us avoid an arbitrary hardcoded width which causes alignment & resizing problems.
     run.schedule('afterRender', this, () => {
       this.set('width', this.element.clientWidth - margin.left - margin.right);
-      this.initBarChart();
+      this.renderBarChart();
     });
   },
 
-  initBarChart() {
-    // mount the d3 elements on initial page load, but do not render the bars yet.
-    const svgContainer = d3.select('.http-requests-bar-chart');
-    this.set('svgContainer', svgContainer);
-
-    const defs = svgContainer.append('defs');
-
-    const bgGradient = defs
-      .append('linearGradient')
-      .attr('id', 'bg-gradient')
-      .attr('gradientTransform', 'rotate(90)');
-
-    bgGradient
-      .append('stop')
-      // this corresponds to $blue-500
-      .attr('stop-color', '#1563ff')
-      .attr('stop-opacity', '0.8')
-      .attr('offset', '0%');
-
-    bgGradient
-      .append('stop')
-      // this corresponds to $blue-500
-      .attr('stop-color', '#1563ff')
-      .attr('stop-opacity', '0.3')
-      .attr('offset', '100%');
-
-    const clipPathRect = svgContainer
-      .append('g')
-      .attr('clip-path', `url(#clip-bar-rects)`)
-      .append('rect')
-      .attr('x', 0)
-      .attr('y', 0)
-      .style('fill', 'url(#bg-gradient)');
-
-    this.set('clipPathRect', clipPathRect);
-
-    const barsContainer = d3
-      .select('.http-requests-bar-chart')
-      .append('clipPath')
-      .attr('id', 'clip-bar-rects');
-
-    this.set('barsContainer', barsContainer);
-
-    svgContainer.append('g').attr('class', 'x axis');
-    svgContainer.append('g').attr('class', 'y axis');
-
-    this.renderBarChart();
-  },
-
   renderBarChart() {
+    const { margin, width, xScale, yScale, parsedCounters } = this;
     const height = this.height();
-    const { margin, width, svgContainer, xScale, yScale, parsedCounters, barsContainer, clipPathRect } = this;
+    const barChartSVG = d3.select('.http-requests-bar-chart');
+    const barsContainer = d3.select('#bars-container');
 
     // render the chart
     d3.select('.http-requests-bar-chart')
@@ -158,19 +95,17 @@ export default Component.extend({
     const yAxis = d3Axis.axisRight(yScale).ticks(3, '.0s');
     const xAxis = d3Axis.axisBottom(xScale).tickFormat(d3TimeFormat.timeFormat('%b %Y'));
 
-    svgContainer
+    barChartSVG
       .select('g.x.axis')
       .attr('transform', `translate(0,${height})`)
       .call(xAxis);
 
-    svgContainer
+    barChartSVG
       .select('g.y.axis')
       .attr('transform', `translate(${width - margin.left - margin.right}, 0)`)
       .call(yAxis);
 
-    // update the clipPath and render the bars
-    clipPathRect.attr('width', width).attr('height', height);
-
+    // render the bars
     const bars = barsContainer.selectAll('.bar').data(parsedCounters);
     const barsEnter = bars
       .enter()
