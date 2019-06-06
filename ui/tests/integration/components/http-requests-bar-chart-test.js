@@ -4,18 +4,18 @@ import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import sinon from 'sinon';
 
-const COUNTERS = [
+[
   {
-    start_time: '2019-05-01T00:00:00Z',
-    total: 50000,
+    start_time: '2019-03-01T00:00:00Z',
+    total: 5500,
   },
   {
     start_time: '2019-04-01T00:00:00Z',
     total: 4500,
   },
   {
-    start_time: '2019-03-01T00:00:00Z',
-    total: 550000,
+    start_time: '2019-05-01T00:00:00Z',
+    total: 5000,
   },
 ];
 
