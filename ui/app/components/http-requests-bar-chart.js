@@ -32,6 +32,7 @@ export default Component.extend({
   classNames: ['http-requests-bar-chart-container'],
   counters: null,
   margin: { top: 24, right: 16, bottom: 24, left: 16 },
+  padding: 0.04,
   width: 0,
   height() {
     const { margin } = this;
@@ -58,13 +59,14 @@ export default Component.extend({
   }),
 
   xScale: computed('parsedCounters', 'width', function() {
-    const { parsedCounters, width, margin } = this;
+    const { parsedCounters, width, margin, padding } = this;
 
     return d3Scale
       .scaleBand()
       .domain(parsedCounters.map(c => c.start_time))
       .rangeRound([0, width - margin.left - margin.right], 0.05)
-      .paddingInner(0.04);
+      .paddingInner(padding)
+      .paddingOuter(padding);
   }),
 
   didInsertElement() {
