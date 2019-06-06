@@ -125,5 +125,24 @@
           </li>
         </ul>
       </nav>
+      {{#if (has-permission 'metrics' routeParams='requests')}}
+        <hr />
+        <nav class="menu">
+          <div class="menu-label">
+            Metrics
+          </div>
+          <ul class="menu-list">
+            <li class="action">
+            {{#if activeCluster.unsealed}}
+              {{#link-to "vault.cluster.requests"}}
+                <div class="level is-mobile">
+                  <span class="level-left">Request Metrics</span>
+                </div>
+              {{/link-to}}
+            {{/if}}
+            </li>
+          </ul>
+        </nav>
+      {{/if}}
   </div>
 </div>
