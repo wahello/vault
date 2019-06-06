@@ -53,12 +53,4 @@ module('Integration | Component | http-requests-bar-chart', function(hooks) {
       'y axis ticks should round to the nearest thousand'
     );
   });
-
-  // test('it updates chart dimensions on page resize', async function(assert) {
-  //   let spy = sinon.spy();
-  //   this.set('renderBarChat', spy);
-  //   this.set('width', this.element.clientWidth);
-  //   await render(hbs`<HttpRequestsBarChart @counters={{counters}}/>`);
-  //   debugger;
-  // });
 });
