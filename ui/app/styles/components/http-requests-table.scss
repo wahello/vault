@@ -3,8 +3,14 @@
     visibility: collapse;
   }
 
-  & tbody th {
-    vertical-align: inherit;
+  & th,
+  td {
+    padding: $spacing-s;
+  }
+
+  & th {
+    color: $grey-dark;
+    font-weight: 500;
   }
 
   & tr {
@@ -12,7 +18,11 @@
   }
 
   & td {
-    padding: $spacing-s;
+    color: $grey-darkest;
+  }
+
+  & .percent-change {
+    font-weight: 500;
   }
 
   & .arrow-up {
