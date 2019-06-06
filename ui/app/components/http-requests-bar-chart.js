@@ -5,7 +5,7 @@ import d3Axis from 'd3-axis';
 import d3TimeFormat from 'd3-time-format';
 import { assign } from '@ember/polyfills';
 import { computed } from '@ember/object';
-import { run } from '@ember/runloop';
+import { run, debounce } from '@ember/runloop';
 import { task, waitForEvent } from 'ember-concurrency';
 
 /**
@@ -133,9 +133,10 @@ export default Component.extend({
   waitforResize: task(function*() {
     while (true) {
       yield waitForEvent(window, 'resize');
-      this.updateDimensions();
+      debounce(this, 'updateDimensions', 200);
     }
   })
     .on('didInsertElement')
-    .cancelOn('willDestroyElement'),
+    .cancelOn('willDestroyElement')
+    .drop(),
 });
